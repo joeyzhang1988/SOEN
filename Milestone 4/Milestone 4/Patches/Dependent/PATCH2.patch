@@ -1,0 +1,120 @@
+From e25e2a7ee9bb2cd70a0bca3b77f66ce3463d17df Mon Sep 17 00:00:00 2001
+From: joeyzhang1989 <chenglongzhang931@gmail.com>
+Date: Mon, 31 Mar 2014 13:44:40 -0400
+Subject: [PATCH] Extract method and delete unrelated code
+
+1 extract the method in Board class from the  conditional statment to
+the new method named squareposition, hide the function in the method
+only pass the parameter to the new method.
+2 deleted the unrelated code in the ConnectionBridge Class
+---
+ .../src/ChessGameKenai/Board.java                  | 33 +++++++++++--------
+ .../src/ChessGameKenai/ConnectionBridge.java       | 38 ++--------------------
+ 2 files changed, 22 insertions(+), 49 deletions(-)
+
+diff --git a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java
+index e5b5dda..033e323 100644
+--- a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java
++++ b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java
+@@ -353,25 +353,32 @@ public void update(Observable o, Object arg) {
+             isFirstTime = false;
+         }
+         if (arg != null) {
+-            ArrayList list = (ArrayList) arg;
+-            String turn = "";
+-            if (squares.get((Integer) list.get(1) - 1).getComponentCount() > 0) {
+-                Piece p = ((Piece) squares.get((Integer) list.get(1) - 1).getComponent(0));
+-                if (p.getColor() == Color.WHITE) {
+-                    turn = "W" + p.getType();
+-                } else {
+-                    turn = "B" + p.getType();
+-                }
+-            }
+-            view.getMoves().append(turn + " from: " + mapPositions.get(list.get(0)) + " to " + mapPositions.get(list.get(1)) + "\n");
+-            view.getMoves().append("--------------------------\n");
+-            view.getMoves().setCaretPosition(view.getMoves().getDocument().getLength());
++            squareposition(arg);
+         }
+         this.removeCapturedPieces();
+         this.revalidate();
+         this.repaint();
+     }
+ 
++	/**
++	 * @param record the moves made by the data class and display on the view
++	 */
++	public void squareposition(Object arg) {
++		ArrayList list = (ArrayList) arg;
++		String turn = "";
++		if (squares.get((Integer) list.get(1) - 1).getComponentCount() > 0) {
++		    Piece p = ((Piece) squares.get((Integer) list.get(1) - 1).getComponent(0));
++		    if (p.getColor() == Color.WHITE) {
++		        turn = "W" + p.getType();
++		    } else {
++		        turn = "B" + p.getType();
++		    }
++		}
++		view.getMoves().append(turn + " from: " + mapPositions.get(list.get(0)) + " to " + mapPositions.get(list.get(1)) + "\n");
++		view.getMoves().append("--------------------------\n");
++		view.getMoves().setCaretPosition(view.getMoves().getDocument().getLength());
++	}
++
+     /**
+      * The method isFirstTime simply sets the boolean value to true or false
+      * depending on the user's choice
+diff --git a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java
+index b7299c9..7c60f7a 100644
+--- a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java
++++ b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java
+@@ -180,16 +180,7 @@ public void analyzeAndExecute(Object object) {
+                     chat.getTxtPane().insertIcon(new ImageIcon(getClass().getResource(((Packet) object).getImgPath())));
+                     chat.getTxtPane().setCaretPosition(chat.getTxtPane().getDocument().getLength());
+                 }
+-                setProperty set=new setProperty();
+-                set.setPlayerIconPath(object);
+-                if (packet.getPlayerIconPath() != null) {
+-                    //ConnectionBridge.this.setPlayerIconPath(object);
+-                	set.setPlayerIconPath(object);
+-                }
+-                if (packet.getGuestName() != null) {
+-                    //ConnectionBridge.this.setGuestName(object);
+-                    set.setGuestName(object);
+-                }
++            
+                 if (packet.getRestartGame() != null) {
+                     ConnectionBridge.this.restartGame();
+                 }
+@@ -245,30 +236,5 @@ public void killThread() {
+      * so he would also see that image changed
+      * @param object as an Object
+      */
+-   /* public void setPlayerIconPath(Object object) {
+-        Packet packet = (Packet) object;
+-        if (data.isServer()) {
+-            data.getPlayers().get(1).setImagePath(packet.getPlayerIconPath());
+-        } else {
+-            data.getPlayers().get(0).setImagePath(packet.getPlayerIconPath());
+-        }
+-        data.notifyView();
+-    }
+-
+-    /**
+-     * The method setGuestName simply sets the guest name
+-     * of the player this method is used to update the view of the client
+-     * when a client changes his name the name is send to the other client that is connected
+-     * so he would also see that name changed
+-     * @param object as an Object
+-     */
+-    /*public void setGuestName(Object object) {
+-        Packet packet = (Packet) object;
+-        if (data.isServer()) {
+-            data.getPlayers().get(1).setName(packet.getGuestName());
+-        } else {
+-            data.getPlayers().get(0).setName(packet.getGuestName());
+-        }
+-        data.notifyView();
+-    }*/
++   
+ }
+-- 
+1.8.5.5

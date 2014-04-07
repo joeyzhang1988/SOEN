@@ -1,0 +1,66 @@
+From afd71dcc1a382226e9f3da5d24e7a1e238c1b880 Mon Sep 17 00:00:00 2001
+From: Pavithra <pavithrak2006@gmail.com>
+Date: Sun, 30 Mar 2014 15:37:29 -0400
+Subject: [PATCH] Code smell:God class
+
+The refactoring used is Extract Class.
+Extract to new class setProperty.java,
+Move unrelated methods setGuestName() and setPlayerIconPath() into the
+new class.
+Create an instance of the new class in original class Connection
+Bridge.java
+Update references to ConnectionBridge.java where these methods are
+called.
+---
+ .../src/ChessGameKenai/ConnectionBridge.java               | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java
+index 20373f4..b7299c9 100644
+--- a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java
++++ b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/ConnectionBridge.java
+@@ -180,11 +180,15 @@ public void analyzeAndExecute(Object object) {
+                     chat.getTxtPane().insertIcon(new ImageIcon(getClass().getResource(((Packet) object).getImgPath())));
+                     chat.getTxtPane().setCaretPosition(chat.getTxtPane().getDocument().getLength());
+                 }
++                setProperty set=new setProperty();
++                set.setPlayerIconPath(object);
+                 if (packet.getPlayerIconPath() != null) {
+-                    ConnectionBridge.this.setPlayerIconPath(object);
++                    //ConnectionBridge.this.setPlayerIconPath(object);
++                	set.setPlayerIconPath(object);
+                 }
+                 if (packet.getGuestName() != null) {
+-                    ConnectionBridge.this.setGuestName(object);
++                    //ConnectionBridge.this.setGuestName(object);
++                    set.setGuestName(object);
+                 }
+                 if (packet.getRestartGame() != null) {
+                     ConnectionBridge.this.restartGame();
+@@ -241,7 +245,7 @@ public void killThread() {
+      * so he would also see that image changed
+      * @param object as an Object
+      */
+-    public void setPlayerIconPath(Object object) {
++   /* public void setPlayerIconPath(Object object) {
+         Packet packet = (Packet) object;
+         if (data.isServer()) {
+             data.getPlayers().get(1).setImagePath(packet.getPlayerIconPath());
+@@ -258,7 +262,7 @@ public void setPlayerIconPath(Object object) {
+      * so he would also see that name changed
+      * @param object as an Object
+      */
+-    public void setGuestName(Object object) {
++    /*public void setGuestName(Object object) {
+         Packet packet = (Packet) object;
+         if (data.isServer()) {
+             data.getPlayers().get(1).setName(packet.getGuestName());
+@@ -266,5 +270,5 @@ public void setGuestName(Object object) {
+             data.getPlayers().get(0).setName(packet.getGuestName());
+         }
+         data.notifyView();
+-    }
++    }*/
+ }
+-- 
+1.8.5.5

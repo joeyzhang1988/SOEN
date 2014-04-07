@@ -1,0 +1,181 @@
+From ce0d8e68c14235f18b44ee19f2554796df06ef4a Mon Sep 17 00:00:00 2001
+From: wankunpp <wankunpp@gmail.com>
+Date: Sat, 5 Apr 2014 17:00:18 -0400
+Subject: [PATCH] Type Checking
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+a. Creat  new a class named “CurrentBoard.java”
+b. Creat a new class named ”NormalBoard.java”
+c. Creat a new class named ”FlippedBoard.java”
+d. Modify the class “board.java”
+---
+ .../src/ChessGameKenai/Board.java                  | 43 +++++++++-------------
+ .../src/ChessGameKenai/CurrentBoard.java           |  6 +++
+ .../src/ChessGameKenai/FlippedBoard.java           | 23 ++++++++++++
+ .../src/ChessGameKenai/NormalBoard.java            | 24 ++++++++++++
+ 4 files changed, 71 insertions(+), 25 deletions(-)
+ create mode 100644 chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/CurrentBoard.java
+ create mode 100644 chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/FlippedBoard.java
+ create mode 100644 chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/NormalBoard.java
+
+diff --git a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java
+index 033e323..2ceef77 100644
+--- a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java
++++ b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/Board.java
+@@ -38,7 +38,7 @@
+      * It is used in the switch statement in order to switch to Normal board
+      */
+     public static final int NORMAL_BOARD = 2;
+-    private int currentBoard = NORMAL_BOARD;
++    private CurrentBoard currentBoard = new NormalBoard();
+     private boolean isWhite = true;
+     private ArrayList<Square> squares;
+     private HashMap<String, String> imageMap = new HashMap<String, String>();
+@@ -218,46 +218,29 @@ public void setSquares() {
+      * @param currentBoard as an integer
+      */
+     public void setBoard(int currentBoard) {
+-        this.currentBoard = currentBoard;
++        this.setCurrentBoard(currentBoard);
+     }
+ 
++
+     /**
+      * The method flipBoard simply flips the board to normal
+      * or flip state we use a switch statement to switch between states
+      */
+     public void flipBoard() {
+ 
+-        //SWITCH STATEMENT FOR CURRENT BOARD VARIABLE IT'S EITHER NORMAL OR FLIPPED
+-        switch (this.currentBoard) {
+-
+-            //IF NORMAL_BOARD EXECUTE THE CASE STATEMENT
+-            case Board.NORMAL_BOARD:
+-                for (int i = 0; i < squares.size(); i++) {
+-                    squares.get(i).setBounds((int) (455 - squares.get(i).getBounds().getX()), (int) (455 - squares.get(i).getBounds().getY()), 65, 65);
+-                    squares.get(i).repaint();
+-                    this.add(squares.get(i));
+-                }
+-                break;
+-
+-            //IF FLIPPED_BOARD EXECUTE THE CASE STATEMENT
+-            case Board.FLIPPED_BOARD:
+-                for (int i = squares.size() - 1; i > -1; i--) {
+-                    squares.get(i).setBounds((int) (455 - squares.get(i).getBounds().getX()), (int) (455 - squares.get(i).getBounds().getY()), 65, 65);
+-                    squares.get(i).repaint();
+-                    this.add(squares.get(i));
+-                }
+-                break;
+-        }
++        currentBoard.flipBoard(this);
+         this.revalidate();
+         this.repaint();
+     }
+ 
++    
++
+     /**
+      * The method getCurrentBoard simply returns the current board to the caller
+      * @return currentBoard as an integer
+      */
+     public int getCurrentBoard() {
+-        return currentBoard;
++        return currentBoard.getCurrentBoard();
+     }
+ 
+     /**
+@@ -266,7 +249,17 @@ public int getCurrentBoard() {
+      * @param currentBoard as an integer
+      */
+     public void setCurrentBoard(int currentBoard) {
+-        this.currentBoard = currentBoard;
++        switch (currentBoard) {
++		case NORMAL_BOARD:
++			this.currentBoard = new NormalBoard();
++			break;
++		case FLIPPED_BOARD:
++			this.currentBoard = new FlippedBoard();
++			break;
++		default:
++			this.currentBoard = null;
++			break;
++		}
+     }
+ 
+     /**
+diff --git a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/CurrentBoard.java b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/CurrentBoard.java
+new file mode 100644
+index 0000000..2a8b320
+--- /dev/null
++++ b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/CurrentBoard.java
+@@ -0,0 +1,6 @@
++package ChessGameKenai;
++public abstract class CurrentBoard {
++	public abstract int getCurrentBoard();
++
++	public abstract void flipBoard(Board board);
++}
+diff --git a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/FlippedBoard.java b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/FlippedBoard.java
+new file mode 100644
+index 0000000..94fde2d
+--- /dev/null
++++ b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/FlippedBoard.java
+@@ -0,0 +1,23 @@
++package ChessGameKenai;
++/**
++ * @see ChessGameKenai.Board#FLIPPED_BOARD
++ */
++public class FlippedBoard extends CurrentBoard {
++	public int getCurrentBoard() {
++		return Board.FLIPPED_BOARD;
++	}
++
++	public void flipBoard(Board board) {
++		for (int i = board.getSquares().size() - 1; i > -1; i--) {
++			board.getSquares()
++					.get(i)
++					.setBounds(
++					(int) (455 - board.getSquares().get(i).getBounds()
++									.getX()),
++					(int) (455 - board.getSquares().get(i).getBounds()
++									.getY()), 65, 65);
++			board.getSquares().get(i).repaint();
++			board.add(board.getSquares().get(i));
++		}
++	}
++}
+diff --git a/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/NormalBoard.java b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/NormalBoard.java
+new file mode 100644
+index 0000000..a3be442
+--- /dev/null
++++ b/chess/ChessGameV2.1(DIMITRI)/src/ChessGameKenai/NormalBoard.java
+@@ -0,0 +1,24 @@
++package ChessGameKenai;
++/**
++ * @see ChessGameKenai.Board#NORMAL_BOARD
++ */
++public class NormalBoard extends CurrentBoard {
++	public int getCurrentBoard() {
++		return Board.NORMAL_BOARD;
++	}
++
++public void flipBoard(Board board) {
++		for (int i = 0; i < board.getSquares().size(); i++) {
++			board.getSquares()
++					.get(i)
++					.setBounds(
++					(int) (455 - board.getSquares().get(i).getBounds()
++						.getX()),
++					(int) (455 - board.getSquares().get(i).getBounds()
++						.getY()), 65, 65);
++			board.getSquares().get(i).repaint();
++			board.add(board.getSquares().get(i));
++		}
++	}
++}
++
+-- 
+1.9.1
+
